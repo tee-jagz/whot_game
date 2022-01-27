@@ -7,14 +7,14 @@ class card:
         self.num = num
         self.shape = shape
 
-
+    # Check if card is an action card
     def isAction(self):
         if self.num in [0,2,5,14]:
             return True
         else:
             return False
 
-
+    # Return the number of picks from the card
     def cardAction(self):
         if self.isAction():
             if self.num == 0:
@@ -26,10 +26,11 @@ class card:
             elif self.num == 14:
                 return 1
     
-    
+    # Display the number and shape of card
     def cardDisplay(self):
         return f'[{self.num}:{self.shape}]'
 
+    # Return the num of points from card
     def value(self):
         if self.isAction():
             return self.num+5
@@ -41,19 +42,23 @@ class card:
 class deck:
     def __init__ (self):
         self.deck = []
-        for shape in ['Circle', 'Square', 'Triangle']:
+        for shape in ['Circle', 'Square', 'Triangle', 'Star']:
             for num in range(15):
                 self.deck.append(card(num, shape))
     
+    # Shuffles the cards in the deck
     def shuffle(self):
         return random.shuffle(self.deck)
 
+    # Return the last card in the Deck
     def give(self):
         return self.deck.pop()
 
+    # Returns the number of cards left
     def remainingCards(self):
         return len(self.deck)
 
+    # Show all the cards in the deck
     def show(self):
         for card in self.deck:
             print(card.cardDisplay())
@@ -66,32 +71,38 @@ class hand:
         self.name = name
         self.isSkip = False
 
+    # Get a number of cards from deck
     def getCard(self, num):
         for i in range(num):
             self.hand.append(deck.give())
 
+    # Check the last played card
     def checkStage(self, card, stage):
         if (card.num == stage.num) or (card.shape == stage.shape):
             return True
         else:
             return False
 
+    # Play a card on stage
     def playCard(self, ind):
         stage.addCard(self.hand.pop(ind))
         
-
+    # Return the number of cards player have left
     def remainingCards(self):
         return len(self.hand)
-    
+
+    # Print player info and all the cards player has
     def show(self):
         print(f'{self.name}:')
         for ind,  card in enumerate(self.hand):
             print(f'({ind}):{card.cardDisplay()}', end=' | ')
         print('\n')
 
+    # Check if player is skipping turn
     def skip(self, isSkip = True):
         self.isSkip = isSkip
 
+    # Returns the number of deductable poins based on players cards
     def liability(self):
         temp = 0
         for card in self.hand:
@@ -99,16 +110,20 @@ class hand:
         return temp
 
 
+# Create a stage class to represent play area
 class stage:
     def __init__(self):
         self.stage = []
 
+    # Returns the last card on stage
     def getStage(self):
         return self.stage[-1]
 
+    # Add a card to stage
     def addCard(self, card):
         self.stage.append(card)
 
+    # Show the last card played on stage
     def show(self):
         temp = '+              +\n'*2
         print(f" {'+'*14}")
@@ -116,21 +131,26 @@ class stage:
         print(f"{temp} {'+'*14}")
 
 
+# Create engine the containd logic of game
 class engine:
     def __init__(self, players):
         self.players = []
         for player in range(players):
             self.players.append(hand(f'Player {player+1}'))
 
+    # Start the game and deal out cards to each player and one to stage
     def startGame(self):
         deck.shuffle()
         for player in self.players:
             player.getCard(4)
         stage.addCard(deck.give())
 
+    # Ask next player to pick 'n' card(s) or skip turn
     def punish(self, player):
         player.getCard(stage.getStage().cardAction())
 
+    # Return True is deck is empty
+    # If deck is empty, print the player with the lowest points as the winner
     def checkDeck(self, players):
         if deck.remainingCards() < 1:
             temp = {}
@@ -144,6 +164,7 @@ class engine:
             print(f"\n{winner} won!\n\n")
             return True
 
+    # Play logic
     def play(self):
         count = 0
         while True:
@@ -218,11 +239,14 @@ class engine:
                 count +=1
 
 
+# Create instances of stage, deck and engine
 stage = stage()
 deck = deck()
 engine = engine(2)    
 
+# Print welcome message
 print(f'{"-"*100}\nWelcome to the game of WORT!\n{"-"*70}\n')
 
+# Start and game
 engine.startGame()
 engine.play()
